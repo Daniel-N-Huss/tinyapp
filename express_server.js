@@ -11,8 +11,6 @@ const generateRandomString = function () {
   return seed.slice(2, 7);
 };
 
-console.log(generateRandomString());
-
 const urlDatabase = {
   "b2xVn2": 'http://www.lighthouselabs.ca',
   "9sm5xK": 'http://google.com'
@@ -42,8 +40,9 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("ok");
+  let makeString = generateRandomString();
+  urlDatabase[makeString] = req.body['longURL'];
+  res.redirect(`/urls/${makeString}`);
 });
 
 app.listen(PORT, () => {
