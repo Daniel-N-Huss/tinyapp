@@ -34,15 +34,24 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+//Passes our database to the urls_show template
+//we can see our database of short url's change dynamically.
 app.get('/urls/:shortURL', (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase};
   res.render("urls_show", templateVars);
 });
 
+//Generate a new short url, and key-value for database and redirectes user to a page for the short url
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
   urlDatabase[makeString] = req.body['longURL'];
   res.redirect(`/urls/${makeString}`);
+});
+
+//Redirect users to the real website of short urls
+app.get('/u/:shortURL', (req, res) => {
+  let longURL = urlDatabase[req.params['shortURL']];
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
