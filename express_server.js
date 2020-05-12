@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 8080;
 
+
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -58,6 +59,13 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
+
+app.post('/u/:shortURL/update', (req, res) => {
+  const { newURL } = req.body;
+  urlDatabase[req.params.shortURL] = newURL;
+  res.redirect(`/urls`);
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
