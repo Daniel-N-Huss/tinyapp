@@ -7,6 +7,7 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+
 const generateRandomString = function () {
   let seed = Math.random().toString(36);
   return seed.slice(2, 7);
@@ -16,7 +17,6 @@ const urlDatabase = {
   "b2xVn2": 'http://www.lighthouselabs.ca',
   "9sm5xK": 'http://google.com'
 };
-
 
 app.get('/', (req, res) => {
   res.redirect('/urls');
@@ -34,15 +34,14 @@ app.get('/urls', (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get('/urls/new', (req, res) => {  
+app.get('/urls/new', (req, res) => {
   let templateVars = {
     username: req.cookies.username
   };
   res.render("urls_new", templateVars);
 });
 
-//Passes our database to the urls_show template
-//we can see our database of short url's change dynamically.
+//Pass database to urls_show template w/ templateVars
 app.get('/urls/:shortURL', (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
@@ -52,7 +51,7 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//Generate a new short url, and key-value for database and redirectes user to a page for the short url
+//Generate a new short url / redirect to shortURL page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
   urlDatabase[makeString] = req.body['longURL'];
@@ -65,11 +64,13 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
+//Delete
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
+//Edit
 app.post('/u/:shortURL/update', (req, res) => {
   const { newURL } = req.body;
   urlDatabase[req.params.shortURL] = newURL;
@@ -79,7 +80,6 @@ app.post('/u/:shortURL/update', (req, res) => {
 app.post('/login', (req, res) => {
   const { username } = req.body;
   res.cookie('username', username);
-  console.log(username);
   res.redirect('/urls');
 });
 

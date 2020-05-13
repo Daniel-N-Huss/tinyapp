@@ -1,7 +1,7 @@
 {
   "name": "tinyapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "A URL Shortening Service",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon -L express_server.js",
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/Daniel-N-Huss/tinyapp.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["URLShortener", "Express", "EJS"],
+  "author": "Daniel-N-Huss",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Daniel-N-Huss/tinyapp/issues"
