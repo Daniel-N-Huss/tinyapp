@@ -136,8 +136,13 @@ app.post('/u/:shortURL/update', (req, res) => {
   res.redirect(`/urls`);
 });
 
+//Login
 app.get('/login', (req, res) => {
-  res.render('login');
+  const user = usersDatabase[req.cookies.user_id];
+  let templateVars = {
+    user: user
+  };
+  res.render('login', templateVars);
 });
 
 app.post('/login', (req, res) => {
