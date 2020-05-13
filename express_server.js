@@ -38,7 +38,7 @@ const checkForEmail = function(passedEmail) {
     }
   }
   return false;
-}
+};
 
 app.get('/', (req, res) => {
   res.redirect('/urls');
@@ -134,6 +134,10 @@ app.post('/u/:shortURL/update', (req, res) => {
   const { newURL } = req.body;
   urlDatabase[req.params.shortURL] = newURL;
   res.redirect(`/urls`);
+});
+
+app.get('/login', (req, res) => {
+  res.render('login');
 });
 
 app.post('/login', (req, res) => {
