@@ -18,6 +18,19 @@ const urlDatabase = {
   "9sm5xK": 'http://google.com'
 };
 
+const users = {
+  'user1': {
+    id: 'user1',
+    email: 'user.example.com',
+    password: 'purple-monkey-dinosaur'
+  },
+  'user2': {
+    id: 'user2',
+    email: 'user2@example.com',
+    password: 'dishwasher-funk'
+  }
+};
+
 app.get('/', (req, res) => {
   res.redirect('/urls');
 });
