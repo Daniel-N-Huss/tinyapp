@@ -18,7 +18,7 @@ const urlDatabase = {
   "9sm5xK": 'http://google.com'
 };
 
-const users = {
+const usersDatabase = {
   'user1': {
     id: 'user1',
     email: 'user.example.com',
@@ -40,32 +40,50 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
+  const user = usersDatabase[req.cookies.user_id];
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies.username
+    user: user
   };
+
+
   res.render("urls_index", templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
+  const user = usersDatabase[req.cookies.user_id];
   let templateVars = {
-    username: req.cookies.username
+    user: user
   };
   res.render("urls_new", templateVars);
 });
-
+//registration page
 app.get('/register', (req, res) => {
+  const user = usersDatabase[req.cookies.user_id];
   let templateVars = {
-    username: req.cookies.username
+    user: user
   };
   res.render("register", templateVars);
 });
+
+//submit registration
+app.post('/register', (req, res) => {
+  let { email, password } = req.body;
+  let seed = generateRandomString();
+  usersDatabase[seed] = { email, password, id: seed};
+  res.cookie('user_id', seed);
+  res.redirect('/urls');
+  console.log(usersDatabase);
+  
+});
+
 //Pass database to urls_show template w/ templateVars
 app.get('/urls/:shortURL', (req, res) => {
+  const user = usersDatabase[req.cookies.user_id];
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase,
-    username: req.cookies.username
+    user: user
   };
   res.render("urls_show", templateVars);
 });

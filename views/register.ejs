@@ -16,16 +16,19 @@
     <form method="POST" action='/register'>
       <div class="form-group row">
         <label for="emailInput" class="col-1 col-form-label">Email</label>
-        <input class="form-control col-5" id="emailInput" placeholder="Enter an email">
+        <input type="email" class="form-control col-5" id="emailInput" placeholder="Enter an email" name="email">
       </div>
       <div class="form-group row">
         <label for="passwordInput" class="col-1 col-form-label">Password</label>
-        <input type="password" class="form-control col-5" id="passwordInput" placeholder="Enter a password" aria-describedby="passwordHelp">
+        <input type="password" name="password" class="form-control col-5" id="passwordInput" placeholder="Enter a password" aria-describedby="passwordHelp">
         <small id="passwordHelp" class="form-inline text-muted" style="margin-left: 10px;">I'm not going to do anything to stop you, but please make a secure password.</small>
       </div>
       <button type="submit" class="btn btn-primary btn-lg">Register!</button>
     </form>
   </main>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 
 
