@@ -8,7 +8,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-const generateRandomString = function () {
+const generateRandomString = function() {
   let seed = Math.random().toString(36);
   return seed.slice(2, 7);
 };
@@ -21,7 +21,7 @@ const urlDatabase = {
 const usersDatabase = {
   'user1': {
     id: 'user1',
-    email: 'user.example.com',
+    email: 'user@example.com',
     password: 'purple-monkey-dinosaur'
   },
   'user2': {
@@ -30,6 +30,15 @@ const usersDatabase = {
     password: 'dishwasher-funk'
   }
 };
+
+const checkForEmail = function(passedEmail) {
+  for (const user in usersDatabase) {
+    if (usersDatabase[user]['email'] === passedEmail) {
+      return true;
+    }
+  }
+  return false;
+}
 
 app.get('/', (req, res) => {
   res.redirect('/urls');
@@ -57,6 +66,7 @@ app.get('/urls/new', (req, res) => {
   };
   res.render("urls_new", templateVars);
 });
+
 //registration page
 app.get('/register', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
@@ -68,13 +78,25 @@ app.get('/register', (req, res) => {
 
 //submit registration
 app.post('/register', (req, res) => {
+
+
   let { email, password } = req.body;
-  let seed = generateRandomString();
-  usersDatabase[seed] = { email, password, id: seed};
-  res.cookie('user_id', seed);
-  res.redirect('/urls');
-  console.log(usersDatabase);
+  if (email === '' || password === '') {
+    res.status(400);
+    res.send('Invalid email or password entered. Please <a href ="/register">register</a> again');
+
+  } else if (checkForEmail(email)) {
+    res.status(400);
+    res.send('Someone has already registered with that email. Please <a href="#">log in<a>, or <a href ="/register">register</a> with a different email');
+    //setTimeout(() => res.redirect('/register'), 3500);
+    return;
   
+  } else {
+    let seed = generateRandomString();
+    usersDatabase[seed] = { email, password, id: seed};
+    res.cookie('user_id', seed);
+    res.redirect('/urls');
+  }
 });
 
 //Pass database to urls_show template w/ templateVars
