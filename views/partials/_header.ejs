@@ -12,7 +12,12 @@
     </div>
 <!--    <label for="usernameSubmission" class="col-form-label"></label> -->
     <% if(username) { %>
-      <p><%=username %> </p>
+      <form method="POST" action="/logout">
+          <div class="form-group row">
+            <label class="col-form-label" for="logoutButton" style="padding-right: 10px; margin-top: 15px;">Logged in as: <%=username %></label>
+            <button style="margin-right: 10px; margin-top: 15px;" id="logoutButton" class="btn btn-outline-dark">Logout</button>
+          </div>
+      </form>
       <% } else { %>
     <form method=POST action='/login'>
       <div class="form-group row" >
