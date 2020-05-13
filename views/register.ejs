@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>TinyApp Registration!</title>
+</head>
+
+<body>
+
+  <%- include('partials/_header') %>
+
+  <main style="margin: 1em;">
+    <h3>Register for a TinyApp Account</h3>
+    <form method="POST" action='/register'>
+      <div class="form-group row">
+        <label for="emailInput" class="col-1 col-form-label">Email</label>
+        <input class="form-control col-5" id="emailInput" placeholder="Enter an email">
+      </div>
+      <div class="form-group row">
+        <label for="passwordInput" class="col-1 col-form-label">Password</label>
+        <input type="password" class="form-control col-5" id="passwordInput" placeholder="Enter a password" aria-describedby="passwordHelp">
+        <small id="passwordHelp" class="form-inline text-muted" style="margin-left: 10px;">I'm not going to do anything to stop you, but please make a secure password.</small>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg">Register!</button>
+    </form>
+  </main>
+</body>
+
+
+</html>
