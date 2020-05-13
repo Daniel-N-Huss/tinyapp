@@ -10,10 +10,15 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+<!--    <label for="usernameSubmission" class="col-form-label"></label> -->
+    <% if(username) { %>
+      <p><%=username %> </p>
+      <% } else { %>
     <form method=POST action='/login'>
       <div class="form-group row" >
-        <input id="usernameSubmission" placeholder="Username">
+        <input id="usernameSubmission" placeholder="Username" name="username">
         <button class="btn btn-secondary">Login</button>
+        <% } %>
       </div>
     </form>
   </nav>
