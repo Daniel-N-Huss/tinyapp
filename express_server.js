@@ -20,22 +20,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 
 const urlDatabase = {
-  "b2xVn2": { longURL: 'http://www.lighthouselabs.ca', userID: 'user1'},
-  "9sm5xK": { longURL: 'http://google.com', userID: 'user1'},
-  "b6UTxQ": { longURL: 'http://www.tsn.ca', userID: 'user2'}
 };
 
 const usersDatabase = {
-  'user1': {
-    id: 'user1',
-    email: 'user@example.com',
-    hashedPassword: bcrypt.hashSync('purple-monkey-dinosaur', 10),
-  },
-  'user2': {
-    id: 'user2',
-    email: 'user2@example.com',
-    hashedPassword: bcrypt.hashSync('dishwasher-funk', 10),
-  }
 };
 
 
@@ -53,7 +40,7 @@ app.get('/401', (req, res) => {
   res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
 });
 
-//Show my urls
+//Show users urls
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.session.userID];
   if (user === undefined) {
@@ -75,7 +62,20 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${makeString}`);
 });
 
-//Pass database to urls_show template w/ templateVars
+//Create new shorturl page
+app.get('/urls/new', (req, res) => {
+  const user = usersDatabase[req.session.userID];
+  let templateVars = {
+    user: user
+  };
+  if (user === undefined) {
+    res.redirect('/login');
+  } else {
+    res.render("urls_new", templateVars);
+  }
+});
+
+//Display shortURL page with edit form, but only for the owner of that url
 app.get('/urls/:shortURL', (req, res) => {
 
   let { shortURL } = req.params;
@@ -130,20 +130,6 @@ app.post('/u/:shortURL/update', (req, res) => {
     urlDatabase[req.params.shortURL] = { longURL: newURL, userID: req.session.userID };
   }
   res.redirect(`/urls`);
-});
-
-
-//Create new shorturl page
-app.get('/urls/new', (req, res) => {
-  const user = usersDatabase[req.session.userID];
-  let templateVars = {
-    user: user
-  };
-  if (user === undefined) {
-    res.redirect('/login');
-  } else {
-    res.render("urls_new", templateVars);
-  }
 });
 
 //registration page
