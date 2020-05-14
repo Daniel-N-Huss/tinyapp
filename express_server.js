@@ -107,7 +107,7 @@ app.post('/register', (req, res) => {
 
   } else if (getUserByEmail(email, usersDatabase)) {
     res.status(400);
-    res.send('Someone has already registered with that email. Please <a href="#">log in<a>, or <a href ="/register">register</a> with a different email');
+    res.send('Someone has already registered with that email. Please <a href="/login">login<a>, or <a href ="/register">register</a> with a different email');
     //setTimeout(() => res.redirect('/register'), 3500);
     return;
   
@@ -202,15 +202,20 @@ app.get('/login', (req, res) => {
 //Login post req
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  if (getUserByEmail(email, usersDatabase)) {
-    let user = usersDatabase[getUserByEmail(email, usersDatabase)];
-    
-    if (user.email === email && bcrypt.compareSync(password, user.hashedPassword)) {
-      req.session.userID = user.id;
-      res.redirect('/');
-    } else {
-      res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
-    }
+  let user = usersDatabase[getUserByEmail(email, usersDatabase)];
+  
+  if (user) {
+  console.log("user", user)
+       
+    bcrypt.compare(password, user.hashedPassword, (err, result) => {
+      if (result) {
+        console.log("result", result);
+        req.session.userID = user.id;
+        res.redirect('/');
+      } else {
+        res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
+      }
+    });
 
   } else {
     res.status(403).send('Sorry, I couldn\'t find that user');
