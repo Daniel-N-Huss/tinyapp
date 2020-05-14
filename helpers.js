@@ -13,11 +13,11 @@ const generateRandomString = function() {
   return seed.slice(2, 7);
 };
 
-const dataFilter = (obj, ID) => {
+const dataFilter = (obj, valueToFilter, keyOfValue) => {
   const filtered = {};
-  for (const shortURL in obj) {
-    if (obj[shortURL]['userID'] === ID) {
-      filtered[shortURL] = obj[shortURL];
+  for (const key in obj) {
+    if (obj[key][keyOfValue] === valueToFilter) {
+      filtered[key] = obj[key];
     }
   }
   return filtered;

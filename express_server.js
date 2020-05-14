@@ -60,7 +60,7 @@ app.get('/urls', (req, res) => {
   if (user === undefined) {
     res.redirect('/401');
   } else {
-    const userURLS = dataFilter(urlDatabase, user['id']);
+    const userURLS = dataFilter(urlDatabase, user['id'], 'userID');
     let templateVars = {
       urls: userURLS,
       user: user
