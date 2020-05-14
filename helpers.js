@@ -29,4 +29,4 @@ module.exports = {
   getUserByEmail,
   generateRandomString,
   dataFilter
-}
+};
