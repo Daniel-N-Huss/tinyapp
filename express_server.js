@@ -113,8 +113,8 @@ app.post('/register', (req, res) => {
   
   } else {
     let seed = generateRandomString();
-    bcrypt.genSalt(10, (salt) => {
-      bcrypt.hash(password, salt, (hash) => {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(password, salt, (err, hash) => {
         usersDatabase[seed] = { email, hashedPassword: hash, id: seed};
         req.session.userID = seed;
         res.redirect('/urls');
@@ -205,11 +205,8 @@ app.post('/login', (req, res) => {
   let user = usersDatabase[getUserByEmail(email, usersDatabase)];
   
   if (user) {
-  console.log("user", user)
-       
     bcrypt.compare(password, user.hashedPassword, (err, result) => {
       if (result) {
-        console.log("result", result);
         req.session.userID = user.id;
         res.redirect('/');
       } else {
