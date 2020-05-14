@@ -34,7 +34,7 @@ const usersDatabase = {
 const checkForEmail = function(passedEmail) {
   for (const user in usersDatabase) {
     if (usersDatabase[user]['email'] === passedEmail) {
-      return true;
+      return user;
     }
   }
   return false;
@@ -146,13 +146,28 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const { username } = req.body;
-  res.cookie('username', username);
-  res.redirect('/urls');
+  const { email, password } = req.body;
+  let user = usersDatabase[checkForEmail(email)];
+  console.log("user", user);
+  if (user.email === email && user.password === password) {
+    res.cookie('user_id', user.id);
+    res.redirect('/');
+  }
+  
+//  if (checkForEmail(email) && 
+
+  //usersDatabase.forEach(user => {
+  //  if (usersDatabase[user][email] === email && usersDatabase[user][password] === password) {
+  //    res.cookie('user_id', usersDatabase[user]['id']);
+  //    res.redirect('/');
+  //  }
+  //});
+
+  //res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
