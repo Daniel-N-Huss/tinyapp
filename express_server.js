@@ -98,11 +98,17 @@ app.get('/urls/new', (req, res) => {
 
 //registration page
 app.get('/register', (req, res) => {
+
   const user = usersDatabase[req.cookies.user_id];
-  let templateVars = {
-    user: user
-  };
-  res.render("register", templateVars);
+  if (user !== undefined) {
+    res.redirect('/urls');
+  
+  } else {
+    let templateVars = {
+      user: user
+    };
+    res.render("register", templateVars);
+  }
 });
 
 //submit registration
@@ -175,8 +181,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     
   if (urlInJeopardy['userID'] === req.cookies.user_id) {
     delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.status(403).send('Error 403: Hey, that\'s not your link! Zelda might get upset if she catches you poking around in here.');
   }
-  res.redirect('/urls');
 });
 
 //Edit
@@ -192,10 +200,14 @@ app.post('/u/:shortURL/update', (req, res) => {
 //Login
 app.get('/login', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
-  let templateVars = {
-    user: user
-  };
-  res.render('login', templateVars);
+  if (user !== undefined) {
+    res.redirect('/urls');
+  } else {
+    let templateVars = {
+      user: user
+    };
+    res.render('login', templateVars);
+  }
 });
 
 app.post('/login', (req, res) => {
@@ -207,8 +219,7 @@ app.post('/login', (req, res) => {
       res.cookie('user_id', user.id);
       res.redirect('/');
     } else {
-      res.status(403);
-      res.send('Ew, I don\'t like that');
+      res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
     }
 
   } else {
