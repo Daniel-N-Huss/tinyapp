@@ -14,8 +14,9 @@ const generateRandomString = function() {
 };
 
 const urlDatabase = {
-  "b2xVn2": 'http://www.lighthouselabs.ca',
-  "9sm5xK": 'http://google.com'
+  "b2xVn2": { longURL: 'http://www.lighthouselabs.ca', userID: 'user1'},
+  "9sm5xK": { longURL: 'http://google.com', userID: 'user1'},
+  "b6UTxQ": { longURL: 'http://www.tsn.ca', userID: 'user2'}
 };
 
 const usersDatabase = {
@@ -54,6 +55,7 @@ app.get('/urls', (req, res) => {
     urls: urlDatabase,
     user: user
   };
+  console.log("urls", templateVars.urls);
 
   res.render("urls_index", templateVars);
 });
@@ -122,8 +124,10 @@ app.post("/urls", (req, res) => {
 
 //Redirect users to the real website of short urls
 app.get('/u/:shortURL', (req, res) => {
-  let longURL = urlDatabase[req.params['shortURL']];
-  res.redirect(longURL);
+  let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
+  console.log("req.params", urlDatabase[req.params.shortURL]['longURL']);
+ 
+  res.redirect(redirectURL);
 });
 
 //Delete
