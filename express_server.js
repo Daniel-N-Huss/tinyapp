@@ -134,13 +134,13 @@ app.get('/urls/:shortURL', (req, res) => {
   let { shortURL } = req.params;
   const user = usersDatabase[req.cookies.user_id];
   
-  
   if (shortURL in urlDatabase === false) {
     res.status(404).send('Error 404: That link is so small it doesn\'t exist');
   
   } else if (user === undefined) {
-    res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
-  
+    res.redirect('/401');
+  } else if (user.id !== urlDatabase[shortURL]["userID"]) {
+    res.status(403).send('Error 403: Hey, that\'s not your link! Zelda might get upset if she catches you poking around in here.');
   } else {
     let templateVars = {
       shortURL: req.params.shortURL,
@@ -160,9 +160,13 @@ app.post("/urls", (req, res) => {
 
 //Redirect users to the real website of short urls
 app.get('/u/:shortURL', (req, res) => {
-  
-  let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
-  res.redirect(redirectURL);
+  let { shortURL } = req.params;
+  if (shortURL in urlDatabase === false) {
+    res.status(404).send('Error 404: Sorry, that link doesn\'t go anywhere... :(');
+  } else {
+    let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
+    res.redirect(redirectURL);
+  }
 });
 
 //Delete
