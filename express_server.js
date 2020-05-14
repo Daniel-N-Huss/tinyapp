@@ -144,7 +144,11 @@ app.get('/u/:shortURL', (req, res) => {
 
 //Delete
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  let urlInJeopardy = urlDatabase[req.params.shortURL];
+    
+  if (urlInJeopardy['userID'] === req.cookies.user_id) {
+    delete urlDatabase[req.params.shortURL];
+  }
   res.redirect('/urls');
 });
 
