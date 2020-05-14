@@ -54,16 +54,16 @@ describe('generateRandomString', function() {
 
 describe('dataFilter', function() {
 
-  it('should return a nested object with all keys containing a provided userID value', function() {
+  it('should not return any objects with a value that doesn\'t matches the filter value', function() {
 
-    const filteredUsers = dataFilter(testUsers, 'userRandomID');
-    const expectedOutput = {
-      "userRandomID": {
-        id: 'userRandomID',
-        email: 'user@example.com',
-        password: "purple-monkey-dinosaur"
+    const filteredUsers = dataFilter(testUsers, 'userRandomID', 'id');
+    const notExpectedOutput = {
+      "user2RandomID": {
+        id: 'user2RandomID',
+        email: 'user2@example.com',
+        password: "dishwasher-funk"
       }
     };
-    assert.equal(filteredUsers, expectedOutput);
+    assert.notDeepNestedInclude(filteredUsers, notExpectedOutput);
   });
 });
