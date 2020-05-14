@@ -9,8 +9,8 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 app.use(cookieSession({
-  name: 'session',
-  keys: [/*secret keys here*/]
+  name: 'tinyAppSessionThing',
+  secret: 'q4CfhXplA'
 }));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -60,7 +60,7 @@ const checkForEmail = function(passedEmail) {
 };
 
 app.get('/', (req, res) => {
-  const user = usersDatabase[req.cookies.user_id];
+  const user = usersDatabase[req.session.user_id];
   if (user === undefined) {
     res.redirect('/login');
   } else {
@@ -79,7 +79,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const user = usersDatabase[req.cookies.user_id];
+  const user = usersDatabase[req.session.user_id];
   if (user === undefined) {
     res.redirect('/401');
   } else {
@@ -93,7 +93,7 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const user = usersDatabase[req.cookies.user_id];
+  const user = usersDatabase[req.session.user_id];
   let templateVars = {
     user: user
   };
@@ -107,7 +107,7 @@ app.get('/urls/new', (req, res) => {
 //registration page
 app.get('/register', (req, res) => {
 
-  const user = usersDatabase[req.cookies.user_id];
+  const user = usersDatabase[req.session.user_id];
   if (user !== undefined) {
     res.redirect('/urls');
   
@@ -138,7 +138,7 @@ app.post('/register', (req, res) => {
     let seed = generateRandomString();
     const hashedPassword = bcrypt.hashSync(password, 10);
     usersDatabase[seed] = { email, hashedPassword, id: seed};
-    res.cookie('user_id', seed);
+    req.session.user_id = seed;
     res.redirect('/urls');
   }
 });
@@ -147,7 +147,7 @@ app.post('/register', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
 
   let { shortURL } = req.params;
-  const user = usersDatabase[req.cookies.user_id];
+  const user = usersDatabase[req.session.user_id];
   
   if (shortURL in urlDatabase === false) {
     res.status(404).send('Error 404: That link is so small it doesn\'t exist');
@@ -169,7 +169,7 @@ app.get('/urls/:shortURL', (req, res) => {
 //Generate a new short url / redirect to shortURL page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
-  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.cookies.user_id };
+  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.user_id };
   res.redirect(`/urls/${makeString}`);
 });
 
@@ -188,7 +188,7 @@ app.get('/u/:shortURL', (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
     
-  if (urlInJeopardy['userID'] === req.cookies.user_id) {
+  if (urlInJeopardy['userID'] === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
@@ -199,16 +199,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //Edit
 app.post('/u/:shortURL/update', (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
-  if (urlInJeopardy['userID'] === req.cookies.user_id) {
+  if (urlInJeopardy['userID'] === req.session.user_id) {
     const { newURL } = req.body;
-    urlDatabase[req.params.shortURL] = { longURL: newURL, userID: req.cookies.user_id };
+    urlDatabase[req.params.shortURL] = { longURL: newURL, userID: req.session.user_id };
   }
   res.redirect(`/urls`);
 });
 
 //Login
 app.get('/login', (req, res) => {
-  const user = usersDatabase[req.cookies.user_id];
+  const user = usersDatabase[req.session.user_id];
   if (user !== undefined) {
     res.redirect('/urls');
   } else {
@@ -223,9 +223,10 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
   if (checkForEmail(email)) {
     let user = usersDatabase[checkForEmail(email)];
-
+    
     if (user.email === email && bcrypt.compareSync(password, user.hashedPassword)) {
-      res.cookie('user_id', user.id);
+      req.session.user_id = user.id;
+      //res.cookie('user_id', user.id);
       res.redirect('/');
     } else {
       res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
