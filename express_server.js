@@ -54,11 +54,7 @@ app.get('/401', (req, res) => {
   res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
 });
 
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
+//Show my urls
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.session.userID];
   if (user === undefined) {
@@ -73,6 +69,7 @@ app.get('/urls', (req, res) => {
   }
 });
 
+//Create new shorturl page
 app.get('/urls/new', (req, res) => {
   const user = usersDatabase[req.session.userID];
   let templateVars = {
@@ -103,7 +100,6 @@ app.get('/register', (req, res) => {
 //submit registration
 app.post('/register', (req, res) => {
 
-
   let { email, password } = req.body;
   if (email === '' || password === '') {
     res.status(400);
@@ -117,10 +113,13 @@ app.post('/register', (req, res) => {
   
   } else {
     let seed = generateRandomString();
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    usersDatabase[seed] = { email, hashedPassword, id: seed};
-    req.session.userID = seed;
-    res.redirect('/urls');
+    bcrypt.genSalt(10, (salt) => {
+      bcrypt.hash(password, salt, (hash) => {
+        usersDatabase[seed] = { email, hashedPassword: hash, id: seed};
+        req.session.userID = seed;
+        res.redirect('/urls');
+      });
+    });
   }
 });
 
@@ -165,7 +164,7 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
-//Delete
+//Delete url
 app.post("/urls/:shortURL/delete", (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
     
@@ -177,7 +176,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-//Edit
+//Edit url
 app.post('/u/:shortURL/update', (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
   if (urlInJeopardy['userID'] === req.session.userID) {
@@ -187,7 +186,7 @@ app.post('/u/:shortURL/update', (req, res) => {
   res.redirect(`/urls`);
 });
 
-//Login
+//Login page
 app.get('/login', (req, res) => {
   const user = usersDatabase[req.session.userID];
   if (user !== undefined) {
@@ -200,6 +199,7 @@ app.get('/login', (req, res) => {
   }
 });
 
+//Login post req
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   if (getUserByEmail(email, usersDatabase)) {
@@ -217,6 +217,7 @@ app.post('/login', (req, res) => {
   }
 });
 
+//End session
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
