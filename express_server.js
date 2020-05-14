@@ -55,7 +55,6 @@ app.get('/urls', (req, res) => {
     user: user
   };
 
-
   res.render("urls_index", templateVars);
 });
 
@@ -64,7 +63,11 @@ app.get('/urls/new', (req, res) => {
   let templateVars = {
     user: user
   };
-  res.render("urls_new", templateVars);
+  if (user === undefined) {
+    res.redirect('/login');
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 //registration page
