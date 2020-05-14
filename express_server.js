@@ -2,10 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const { getUserByEmail, generateRandomString, dataFilter } = require('./helpers');
+
+
 const app = express();
 const PORT = 8080;
 
+
 app.set("view engine", "ejs");
+
 
 app.use(cookieSession({
   name: 'tinyAppSession',
@@ -13,21 +18,6 @@ app.use(cookieSession({
 }));
 app.use(bodyParser.urlencoded({extended: true}));
 
-
-const generateRandomString = function() {
-  let seed = Math.random().toString(36);
-  return seed.slice(2, 7);
-};
-
-const dataFilter = (obj, ID) => {
-  const filtered = {};
-  for (const shortURL in obj) {
-    if (obj[shortURL]['userID'] === ID) {
-      filtered[shortURL] = obj[shortURL];
-    }
-  }
-  return filtered;
-};
 
 
 const urlDatabase = {
@@ -49,14 +39,6 @@ const usersDatabase = {
   }
 };
 
-const getUserByEmail = function(passedEmail, database) {
-  for (const user in database) {
-    if (database[user]['email'] === passedEmail) {
-      return user;
-    }
-  }
-  return false;
-};
 
 app.get('/', (req, res) => {
   const user = usersDatabase[req.session.userID];
