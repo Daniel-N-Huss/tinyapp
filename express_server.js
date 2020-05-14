@@ -30,9 +30,6 @@ const urlDatabase = {
   "b6UTxQ": { longURL: 'http://www.tsn.ca', userID: 'user2'}
 };
 
-// dataFilter(urlDatabase, 'user1');
-// console.log("dataFilter(urlDatabase, 'user1');", dataFilter(urlDatabase, 'user1'));
-
 const usersDatabase = {
   'user1': {
     id: 'user1',
@@ -65,7 +62,6 @@ app.get("/urls.json", (req, res) => {
 
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
-  console.log(user);
   if (user === undefined) {
     res.send('Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
   } else {
@@ -136,7 +132,7 @@ app.get('/urls/:shortURL', (req, res) => {
 //Generate a new short url / redirect to shortURL page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
-  urlDatabase[makeString] = req.body['longURL'];
+  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.cookies.user_id };
   res.redirect(`/urls/${makeString}`);
 });
 
