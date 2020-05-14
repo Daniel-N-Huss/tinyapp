@@ -31,7 +31,7 @@ const urlDatabase = {
 };
 
 // dataFilter(urlDatabase, 'user1');
-console.log("dataFilter(urlDatabase, 'user1');", dataFilter(urlDatabase, 'user1'));
+// console.log("dataFilter(urlDatabase, 'user1');", dataFilter(urlDatabase, 'user1'));
 
 const usersDatabase = {
   'user1': {
@@ -65,15 +65,17 @@ app.get("/urls.json", (req, res) => {
 
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
-  console.log("user", user['id']);
-  
-  let templateVars = {
-    urls: urlDatabase,
-    user: user
-  };
-  console.log("urls", templateVars.urls);
-
-  res.render("urls_index", templateVars);
+  console.log(user);
+  if (user === undefined) {
+    res.send('Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
+  } else {
+    const userURLS = dataFilter(urlDatabase, user['id']);
+    let templateVars = {
+      urls: userURLS,
+      user: user
+    };
+    res.render("urls_index", templateVars);
+  }
 });
 
 app.get('/urls/new', (req, res) => {
