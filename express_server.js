@@ -19,7 +19,6 @@ app.use(cookieSession({
 app.use(bodyParser.urlencoded({extended: true}));
 
 
-
 const urlDatabase = {
   "b2xVn2": { longURL: 'http://www.lighthouselabs.ca', userID: 'user1'},
   "9sm5xK": { longURL: 'http://google.com', userID: 'user1'},
@@ -69,58 +68,11 @@ app.get('/urls', (req, res) => {
   }
 });
 
-//Create new shorturl page
-app.get('/urls/new', (req, res) => {
-  const user = usersDatabase[req.session.userID];
-  let templateVars = {
-    user: user
-  };
-  if (user === undefined) {
-    res.redirect('/login');
-  } else {
-    res.render("urls_new", templateVars);
-  }
-});
-
-//registration page
-app.get('/register', (req, res) => {
-
-  const user = usersDatabase[req.session.userID];
-  if (user !== undefined) {
-    res.redirect('/urls');
-  
-  } else {
-    let templateVars = {
-      user: user
-    };
-    res.render("register", templateVars);
-  }
-});
-
-//submit registration
-app.post('/register', (req, res) => {
-
-  let { email, password } = req.body;
-  if (email === '' || password === '') {
-    res.status(400);
-    res.send('Invalid email or password entered. Please <a href ="/register">register</a> again');
-
-  } else if (getUserByEmail(email, usersDatabase)) {
-    res.status(400);
-    res.send('Someone has already registered with that email. Please <a href="/login">login<a>, or <a href ="/register">register</a> with a different email');
-    //setTimeout(() => res.redirect('/register'), 3500);
-    return;
-  
-  } else {
-    let seed = generateRandomString();
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(password, salt, (err, hash) => {
-        usersDatabase[seed] = { email, hashedPassword: hash, id: seed};
-        req.session.userID = seed;
-        res.redirect('/urls');
-      });
-    });
-  }
+//Generate a new short url / redirect to shortURL page
+app.post("/urls", (req, res) => {
+  let makeString = generateRandomString();
+  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID };
+  res.redirect(`/urls/${makeString}`);
 });
 
 //Pass database to urls_show template w/ templateVars
@@ -146,12 +98,6 @@ app.get('/urls/:shortURL', (req, res) => {
   }
 });
 
-//Generate a new short url / redirect to shortURL page
-app.post("/urls", (req, res) => {
-  let makeString = generateRandomString();
-  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID };
-  res.redirect(`/urls/${makeString}`);
-});
 
 //Redirect users to the real website of short urls
 app.get('/u/:shortURL', (req, res) => {
@@ -185,6 +131,60 @@ app.post('/u/:shortURL/update', (req, res) => {
   }
   res.redirect(`/urls`);
 });
+
+
+//Create new shorturl page
+app.get('/urls/new', (req, res) => {
+  const user = usersDatabase[req.session.userID];
+  let templateVars = {
+    user: user
+  };
+  if (user === undefined) {
+    res.redirect('/login');
+  } else {
+    res.render("urls_new", templateVars);
+  }
+});
+
+//registration page
+app.get('/register', (req, res) => {
+
+  const user = usersDatabase[req.session.userID];
+  if (user !== undefined) {
+    res.redirect('/urls');
+  
+  } else {
+    let templateVars = {
+      user: user
+    };
+    res.render("register", templateVars);
+  }
+});
+
+//submit registration, with async hashing and invalid request catches
+app.post('/register', (req, res) => {
+
+  let { email, password } = req.body;
+  if (email === '' || password === '') {
+    res.status(400);
+    res.send('Invalid email or password entered. Please <a href ="/register">register</a> again');
+
+  } else if (getUserByEmail(email, usersDatabase)) {
+    res.status(400);
+    res.send('Someone has already registered with that email. Please <a href="/login">login<a>, or <a href ="/register">register</a> with a different email');
+  
+  } else {
+    let seed = generateRandomString();
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(password, salt, (err, hash) => {
+        usersDatabase[seed] = { email, hashedPassword: hash, id: seed};
+        req.session.userID = seed;
+        res.redirect('/urls');
+      });
+    });
+  }
+});
+
 
 //Login page
 app.get('/login', (req, res) => {
