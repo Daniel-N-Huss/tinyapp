@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
@@ -34,12 +35,12 @@ const usersDatabase = {
   'user1': {
     id: 'user1',
     email: 'user@example.com',
-    password: 'purple-monkey-dinosaur'
+    hashedPassword: bcrypt.hashSync('purple-monkey-dinosaur', 10),
   },
   'user2': {
     id: 'user2',
     email: 'user2@example.com',
-    password: 'dishwasher-funk'
+    hashedPassword: bcrypt.hashSync('dishwasher-funk', 10),
   }
 };
 
@@ -59,6 +60,7 @@ app.get('/', (req, res) => {
   } else {
     res.redirect('/urls');
   }
+  
 });
 
 app.get('/401', (req, res) => {
@@ -128,7 +130,8 @@ app.post('/register', (req, res) => {
   
   } else {
     let seed = generateRandomString();
-    usersDatabase[seed] = { email, password, id: seed};
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    usersDatabase[seed] = { email, hashedPassword, id: seed};
     res.cookie('user_id', seed);
     res.redirect('/urls');
   }
@@ -215,7 +218,7 @@ app.post('/login', (req, res) => {
   if (checkForEmail(email)) {
     let user = usersDatabase[checkForEmail(email)];
 
-    if (user.email === email && user.password === password) {
+    if (user.email === email && bcrypt.compareSync(password, user.hashedPassword)) {
       res.cookie('user_id', user.id);
       res.redirect('/');
     } else {
