@@ -61,6 +61,11 @@ app.get('/', (req, res) => {
   }
 });
 
+app.get('/401', (req, res) => {
+  res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
+});
+
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -68,7 +73,7 @@ app.get("/urls.json", (req, res) => {
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
   if (user === undefined) {
-    res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
+    res.redirect('/401');
   } else {
     const userURLS = dataFilter(urlDatabase, user['id']);
     let templateVars = {
