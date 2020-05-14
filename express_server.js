@@ -13,11 +13,25 @@ const generateRandomString = function() {
   return seed.slice(2, 7);
 };
 
+const dataFilter = (obj, ID) => {
+  const filtered = {};
+  for (const shortURL in obj) {
+    if (obj[shortURL]['userID'] === ID) {
+      filtered[shortURL] = obj[shortURL];
+    }
+  }
+  return filtered;
+};
+
+
 const urlDatabase = {
   "b2xVn2": { longURL: 'http://www.lighthouselabs.ca', userID: 'user1'},
   "9sm5xK": { longURL: 'http://google.com', userID: 'user1'},
   "b6UTxQ": { longURL: 'http://www.tsn.ca', userID: 'user2'}
 };
+
+// dataFilter(urlDatabase, 'user1');
+console.log("dataFilter(urlDatabase, 'user1');", dataFilter(urlDatabase, 'user1'));
 
 const usersDatabase = {
   'user1': {
@@ -51,6 +65,8 @@ app.get("/urls.json", (req, res) => {
 
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
+  console.log("user", user['id']);
+  
   let templateVars = {
     urls: urlDatabase,
     user: user
@@ -125,8 +141,6 @@ app.post("/urls", (req, res) => {
 //Redirect users to the real website of short urls
 app.get('/u/:shortURL', (req, res) => {
   let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
-  console.log("req.params", urlDatabase[req.params.shortURL]['longURL']);
- 
   res.redirect(redirectURL);
 });
 
