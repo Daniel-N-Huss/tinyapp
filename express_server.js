@@ -226,7 +226,6 @@ app.post('/login', (req, res) => {
     
     if (user.email === email && bcrypt.compareSync(password, user.hashedPassword)) {
       req.session.user_id = user.id;
-      //res.cookie('user_id', user.id);
       res.redirect('/');
     } else {
       res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
@@ -238,6 +237,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
+  req.session = null;
   res.clearCookie('user_id');
   res.redirect('/urls');
 });
