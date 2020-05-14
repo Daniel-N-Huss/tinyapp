@@ -154,8 +154,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Edit
 app.post('/u/:shortURL/update', (req, res) => {
-  const { newURL } = req.body;
-  urlDatabase[req.params.shortURL] = newURL;
+  let urlInJeopardy = urlDatabase[req.params.shortURL];
+  if (urlInJeopardy['userID'] === req.cookies.user_id) {
+    const { newURL } = req.body;
+    urlDatabase[req.params.shortURL] = newURL;
+  }
   res.redirect(`/urls`);
 });
 
