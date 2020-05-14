@@ -53,7 +53,12 @@ const checkForEmail = function(passedEmail) {
 };
 
 app.get('/', (req, res) => {
-  res.redirect('/urls');
+  const user = usersDatabase[req.cookies.user_id];
+  if (user === undefined) {
+    res.redirect('/login');
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -63,7 +68,7 @@ app.get("/urls.json", (req, res) => {
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.cookies.user_id];
   if (user === undefined) {
-    res.send('Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
+    res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
   } else {
     const userURLS = dataFilter(urlDatabase, user['id']);
     let templateVars = {
@@ -120,13 +125,25 @@ app.post('/register', (req, res) => {
 
 //Pass database to urls_show template w/ templateVars
 app.get('/urls/:shortURL', (req, res) => {
+
+  let { shortURL } = req.params;
   const user = usersDatabase[req.cookies.user_id];
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase,
-    user: user
-  };
-  res.render("urls_show", templateVars);
+  
+  
+  if (shortURL in urlDatabase === false) {
+    res.status(404).send('Error 404: That link is so small it doesn\'t exist');
+  
+  } else if (user === undefined) {
+    res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
+  
+  } else {
+    let templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase,
+      user: user
+    };
+    res.render("urls_show", templateVars);
+  }
 });
 
 //Generate a new short url / redirect to shortURL page
@@ -138,6 +155,7 @@ app.post("/urls", (req, res) => {
 
 //Redirect users to the real website of short urls
 app.get('/u/:shortURL', (req, res) => {
+  
   let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
   res.redirect(redirectURL);
 });
@@ -157,7 +175,7 @@ app.post('/u/:shortURL/update', (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
   if (urlInJeopardy['userID'] === req.cookies.user_id) {
     const { newURL } = req.body;
-    urlDatabase[req.params.shortURL] = newURL;
+    urlDatabase[req.params.shortURL] = { longURL: newURL, userID: req.cookies.user_id };
   }
   res.redirect(`/urls`);
 });
@@ -185,8 +203,7 @@ app.post('/login', (req, res) => {
     }
 
   } else {
-    res.status(403);
-    res.send('Sorry, I couldn\'t find that user');
+    res.status(403).send('Sorry, I couldn\'t find that user');
   }
 });
 
