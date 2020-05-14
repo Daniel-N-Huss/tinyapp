@@ -147,23 +147,21 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  let user = usersDatabase[checkForEmail(email)];
-  console.log("user", user);
-  if (user.email === email && user.password === password) {
-    res.cookie('user_id', user.id);
-    res.redirect('/');
+  if (checkForEmail(email)) {
+    let user = usersDatabase[checkForEmail(email)];
+
+    if (user.email === email && user.password === password) {
+      res.cookie('user_id', user.id);
+      res.redirect('/');
+    } else {
+      res.status(403);
+      res.send('Ew, I don\'t like that');
+    }
+
+  } else {
+    res.status(403);
+    res.send('Sorry, I couldn\'t find that user');
   }
-  
-//  if (checkForEmail(email) && 
-
-  //usersDatabase.forEach(user => {
-  //  if (usersDatabase[user][email] === email && usersDatabase[user][password] === password) {
-  //    res.cookie('user_id', usersDatabase[user]['id']);
-  //    res.redirect('/');
-  //  }
-  //});
-
-  //res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
