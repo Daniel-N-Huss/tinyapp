@@ -36,10 +36,6 @@ app.get('/', (req, res) => {
   
 });
 
-app.get('/401', (req, res) => {
-  res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
-});
-
 //Show users urls
 app.get('/urls', (req, res) => {
   const user = usersDatabase[req.session.userID];
@@ -55,7 +51,7 @@ app.get('/urls', (req, res) => {
   }
 });
 
-//Generate a new short url / redirect to shortURL page
+//Generate a new short url then redirect to its page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
   urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID };
@@ -82,7 +78,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const user = usersDatabase[req.session.userID];
   
   if (shortURL in urlDatabase === false) {
-    res.status(404).send('Error 404: That link is so small it doesn\'t exist');
+    res.redirect('/404');
   
   } else if (user === undefined) {
     res.redirect('/401');
@@ -103,7 +99,7 @@ app.get('/urls/:shortURL', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   let { shortURL } = req.params;
   if (shortURL in urlDatabase === false) {
-    res.status(404).send('Error 404: Sorry, that link doesn\'t go anywhere... :(');
+    res.redirect('/404');
   } else {
     let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
     res.redirect(redirectURL);
@@ -120,6 +116,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   } else {
     res.status(403).send('Error 403: Hey, that\'s not your link! Zelda might get upset if she catches you poking around in here.');
   }
+});
+
+//Catch for trying to GET delete route
+app.get("/urls/:shortURL/delete", (req, res) => {
+  res.status(403).send('Error 403: Hey, that\'s not your link! Zelda might get upset if she catches you poking around in here.');
 });
 
 //Edit url
@@ -152,12 +153,10 @@ app.post('/register', (req, res) => {
 
   let { email, password } = req.body;
   if (email === '' || password === '') {
-    res.status(400);
-    res.send('Invalid email or password entered. Please <a href ="/register">register</a> again');
+    res.status(400).send('Invalid email or password entered. Please <a href ="/register">register</a> again');
 
   } else if (getUserByEmail(email, usersDatabase)) {
-    res.status(400);
-    res.send('Someone has already registered with that email. Please <a href="/login">login<a>, or <a href ="/register">register</a> with a different email');
+    res.status(400).send('Someone has already registered with that email. Please <a href="/login">login<a>, or <a href ="/register">register</a> with a different email');
   
   } else {
     let seed = generateRandomString();
@@ -185,7 +184,7 @@ app.get('/login', (req, res) => {
   }
 });
 
-//Login post req
+//Login
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   let user = usersDatabase[getUserByEmail(email, usersDatabase)];
@@ -196,19 +195,33 @@ app.post('/login', (req, res) => {
         req.session.userID = user.id;
         res.redirect('/');
       } else {
-        res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
+        res.redirect('/403');
       }
     });
-
   } else {
-    res.status(403).send('Sorry, I couldn\'t find that user');
+    res.redirect('/403');
   }
 });
 
-//End session
+//Logout and end session
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
+});
+
+//Not logged in redirect
+app.get('/401', (req, res) => {
+  res.status(401).send('401: Please <a href ="/register">register</a> or <a href ="/login">login</a> to access your URLS');
+});
+
+// Bad credentials redirect
+app.get('/403', (req, res) => {
+  res.status(403).send('Are you sure you have the right credentials? Please <a href="/login">Login</a> again');
+});
+
+//Page not found redirect
+app.get('/404', (req, res) => {
+  res.status(404).send('Error 404: That link is so small it doesn\'t exist');
 });
 
 app.listen(PORT, () => {
