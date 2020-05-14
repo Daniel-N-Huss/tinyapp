@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const app = express();
 const PORT = 8080;
@@ -9,11 +8,11 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 app.use(cookieSession({
-  name: 'tinyAppSessionThing',
+  name: 'tinyAppSession',
   secret: 'q4CfhXplA'
 }));
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+
 
 const generateRandomString = function() {
   let seed = Math.random().toString(36);
@@ -50,9 +49,9 @@ const usersDatabase = {
   }
 };
 
-const checkForEmail = function(passedEmail) {
-  for (const user in usersDatabase) {
-    if (usersDatabase[user]['email'] === passedEmail) {
+const getUserByEmail = function(passedEmail, database) {
+  for (const user in database) {
+    if (database[user]['email'] === passedEmail) {
       return user;
     }
   }
@@ -60,7 +59,7 @@ const checkForEmail = function(passedEmail) {
 };
 
 app.get('/', (req, res) => {
-  const user = usersDatabase[req.session.user_id];
+  const user = usersDatabase[req.session.userID];
   if (user === undefined) {
     res.redirect('/login');
   } else {
@@ -79,7 +78,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const user = usersDatabase[req.session.user_id];
+  const user = usersDatabase[req.session.userID];
   if (user === undefined) {
     res.redirect('/401');
   } else {
@@ -93,7 +92,7 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  const user = usersDatabase[req.session.user_id];
+  const user = usersDatabase[req.session.userID];
   let templateVars = {
     user: user
   };
@@ -107,7 +106,7 @@ app.get('/urls/new', (req, res) => {
 //registration page
 app.get('/register', (req, res) => {
 
-  const user = usersDatabase[req.session.user_id];
+  const user = usersDatabase[req.session.userID];
   if (user !== undefined) {
     res.redirect('/urls');
   
@@ -128,7 +127,7 @@ app.post('/register', (req, res) => {
     res.status(400);
     res.send('Invalid email or password entered. Please <a href ="/register">register</a> again');
 
-  } else if (checkForEmail(email)) {
+  } else if (getUserByEmail(email, usersDatabase)) {
     res.status(400);
     res.send('Someone has already registered with that email. Please <a href="#">log in<a>, or <a href ="/register">register</a> with a different email');
     //setTimeout(() => res.redirect('/register'), 3500);
@@ -138,7 +137,7 @@ app.post('/register', (req, res) => {
     let seed = generateRandomString();
     const hashedPassword = bcrypt.hashSync(password, 10);
     usersDatabase[seed] = { email, hashedPassword, id: seed};
-    req.session.user_id = seed;
+    req.session.userID = seed;
     res.redirect('/urls');
   }
 });
@@ -147,7 +146,7 @@ app.post('/register', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
 
   let { shortURL } = req.params;
-  const user = usersDatabase[req.session.user_id];
+  const user = usersDatabase[req.session.userID];
   
   if (shortURL in urlDatabase === false) {
     res.status(404).send('Error 404: That link is so small it doesn\'t exist');
@@ -169,7 +168,7 @@ app.get('/urls/:shortURL', (req, res) => {
 //Generate a new short url / redirect to shortURL page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
-  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.user_id };
+  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID };
   res.redirect(`/urls/${makeString}`);
 });
 
@@ -188,7 +187,7 @@ app.get('/u/:shortURL', (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
     
-  if (urlInJeopardy['userID'] === req.session.user_id) {
+  if (urlInJeopardy['userID'] === req.session.userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
@@ -199,16 +198,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //Edit
 app.post('/u/:shortURL/update', (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
-  if (urlInJeopardy['userID'] === req.session.user_id) {
+  if (urlInJeopardy['userID'] === req.session.userID) {
     const { newURL } = req.body;
-    urlDatabase[req.params.shortURL] = { longURL: newURL, userID: req.session.user_id };
+    urlDatabase[req.params.shortURL] = { longURL: newURL, userID: req.session.userID };
   }
   res.redirect(`/urls`);
 });
 
 //Login
 app.get('/login', (req, res) => {
-  const user = usersDatabase[req.session.user_id];
+  const user = usersDatabase[req.session.userID];
   if (user !== undefined) {
     res.redirect('/urls');
   } else {
@@ -221,11 +220,11 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  if (checkForEmail(email)) {
-    let user = usersDatabase[checkForEmail(email)];
+  if (getUserByEmail(email, usersDatabase)) {
+    let user = usersDatabase[getUserByEmail(email, usersDatabase)];
     
     if (user.email === email && bcrypt.compareSync(password, user.hashedPassword)) {
-      req.session.user_id = user.id;
+      req.session.userID = user.id;
       res.redirect('/');
     } else {
       res.status(403).send('Error: 403 - Ew, I don\'t like that, not your email or password');
@@ -238,7 +237,6 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   req.session = null;
-  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
