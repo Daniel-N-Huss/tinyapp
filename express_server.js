@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override');
 const { getUserByEmail, generateRandomString, dataFilter } = require('./helpers');
 
 
@@ -17,7 +18,7 @@ app.use(cookieSession({
   secret: 'q4CfhXplA'
 }));
 app.use(bodyParser.urlencoded({extended: true}));
-
+app.use(methodOverride('_method'));
 
 const urlDatabase = {
 };
@@ -107,7 +108,7 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 //Delete url
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
     
   if (urlInJeopardy['userID'] === req.session.userID) {
@@ -118,13 +119,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-//Catch for trying to GET delete route
-app.get("/urls/:shortURL/delete", (req, res) => {
-  res.status(403).send('Error 403: Hey, that\'s not your link! Zelda might get upset if she catches you poking around in here.');
-});
-
 //Edit url
-app.post('/u/:shortURL/update', (req, res) => {
+app.put('/u/:shortURL', (req, res) => {
   let urlInJeopardy = urlDatabase[req.params.shortURL];
   if (urlInJeopardy['userID'] === req.session.userID) {
     const { newURL } = req.body;
@@ -132,6 +128,12 @@ app.post('/u/:shortURL/update', (req, res) => {
   }
   res.redirect(`/urls`);
 });
+
+//Catch for trying to GET delete route
+app.get("/urls/:shortURL/delete", (req, res) => {
+  res.status(403).send('Error 403: Hey, that\'s not your link! Zelda might get upset if she catches you poking around in here.');
+});
+
 
 //registration page
 app.get('/register', (req, res) => {
