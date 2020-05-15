@@ -12,6 +12,7 @@
       <h5 class="card-title">TinyURL for: <%= urls[shortURL]['longURL'] %></h5>
       <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       <p class='card-text'>Views: <%= urls[shortURL]['viewCount'] %></p>
+      <p class='card-text'>Unique Views: <%= urls[shortURL]['uniqueViews'] %></p>
       <p class="card-text"><a href='/urls/new'>Create New URL</a></p>
     </div>
     <div class="card-footer text-muted">

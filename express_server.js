@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const { getUserByEmail, generateRandomString, dataFilter } = require('./helpers');
 
@@ -18,6 +19,7 @@ app.use(cookieSession({
   secret: 'q4CfhXplA'
 }));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 app.use(methodOverride('_method'));
 
 const urlDatabase = {
@@ -55,7 +57,7 @@ app.get('/urls', (req, res) => {
 //Generate a new short url then redirect to its page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
-  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID, viewCount: 0 };
+  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID, viewCount: 0, uniqueViews: 0 };
   res.redirect(`/urls/${makeString}`);
 });
 
@@ -96,14 +98,22 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 
-//Redirect users to the real website of short urls
+//Redirect users to the real website of short urls and tracks views / unique views
 app.get('/u/:shortURL', (req, res) => {
   let { shortURL } = req.params;
+
   if (shortURL in urlDatabase === false) {
     res.redirect('/404');
   } else {
     let redirectURL = urlDatabase[shortURL]['longURL'];
     urlDatabase[shortURL]['viewCount'] += 1;
+    const cookieChecker = Object.keys(req.cookies);
+    
+    if (!cookieChecker.includes('shortURLViewed')) {
+      res.cookie('shortURLViewed', generateRandomString());
+      urlDatabase[shortURL]['uniqueViews'] += 1;
+
+    }
     res.redirect(redirectURL);
   }
 });
