@@ -88,7 +88,7 @@ app.get('/urls/:shortURL', (req, res) => {
   } else {
     let templateVars = {
       shortURL: req.params.shortURL,
-      longURL: urlDatabase,
+      urls: urlDatabase,
       user: user
     };
     res.render("urls_show", templateVars);
