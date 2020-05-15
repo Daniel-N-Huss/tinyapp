@@ -6,7 +6,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !['Screenshot of the URL's page'](https://github.com/Daniel-N-Huss/tinyapp/blob/master/docs/urls-page.png?raw=true)
 
-!["Screenshot of short URL page with edit bar"](https://github.com/Daniel-N-Huss/tinyapp/blob/master/docs/shortUrl-edit-page.png?raw=true)
+!["Screenshot of short URL page with edit bar and analytics"](https://github.com/Daniel-N-Huss/tinyapp/blob/master/docs/URL%20edit%20page%20with%20analytics.png?raw=true)
 
 ## Dependencies
 
