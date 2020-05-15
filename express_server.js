@@ -55,9 +55,17 @@ app.get('/urls', (req, res) => {
 });
 
 //Generate a new short url then redirect to its page
+//includes keys for analytics
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
-  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID, viewCount: 0, uniqueViews: 0 };
+  
+  urlDatabase[makeString] = {
+    longURL: req.body['longURL'],
+    userID: req.session.userID,
+    viewCount: 0,
+    uniqueViews: 0,
+    viewStats: []
+  };
   res.redirect(`/urls/${makeString}`);
 });
 
@@ -114,6 +122,9 @@ app.get('/u/:shortURL', (req, res) => {
       urlDatabase[shortURL]['uniqueViews'] += 1;
 
     }
+    const { shortURLViewed } = req.cookies;
+    urlDatabase[shortURL]['viewStats'].push({ id: shortURLViewed, timestamp: new Date()});
+    console.log("urlDatabase[shortURL]['viewStats']", urlDatabase[shortURL]['viewStats'])
     res.redirect(redirectURL);
   }
 });
