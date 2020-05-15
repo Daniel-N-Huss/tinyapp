@@ -13,14 +13,15 @@
       <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       <p class='card-text'>Views: <%= urls[shortURL]['viewCount'] %></p>
       <p class='card-text'>Unique Views: <%= urls[shortURL]['uniqueViews'] %></p>
+      <p class="card-text"><a href='/urls/new'>Create New URL</a></p>
+
       <% if (urls[shortURL]['viewStats'].length) { %>
-        <ul>
+        <ul class="list-group">
           <% urls[shortURL]['viewStats'].forEach((item) => { %>
-            <li>Id: <%= item.id %>, Timestamp: <%= item.timestamp %></li>
+            <li class="list-group-item">Id: <%= item.id %>, Timestamp: <%= item.timestamp %></li>
             <% }); %>
             <% } %>
         </ul>
-      <p class="card-text"><a href='/urls/new'>Create New URL</a></p>
     </div>
     <div class="card-footer text-muted">
       <h4 class="card-title">Edit</h4>

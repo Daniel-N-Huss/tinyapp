@@ -113,21 +113,22 @@ app.get('/u/:shortURL', (req, res) => {
   if (shortURL in urlDatabase === false) {
     res.redirect('/404');
   } else {
-    let redirectURL = urlDatabase[shortURL]['longURL'];
-    urlDatabase[shortURL]['viewCount'] += 1;
-    const cookieChecker = Object.keys(req.cookies);
     
-    if (!cookieChecker.includes('shortURLViewed')) {
+    const { shortURLViewed } = req.cookies;
+    if (!shortURLViewed) {
       res.cookie('shortURLViewed', generateRandomString());
       urlDatabase[shortURL]['uniqueViews'] += 1;
-
+      res.redirect(`/u/${shortURL}`);
+    } else {
+      const date = new Date();
+      urlDatabase[shortURL]['viewStats'].push({ id: shortURLViewed, timestamp: `${date.toDateString()} at ${date.toTimeString()}` });
+      let redirectURL = urlDatabase[shortURL]['longURL'];
+      urlDatabase[shortURL]['viewCount'] += 1;
+      res.redirect(redirectURL);
     }
-    const { shortURLViewed } = req.cookies;
-    urlDatabase[shortURL]['viewStats'].push({ id: shortURLViewed, timestamp: new Date()});
-    console.log("urlDatabase[shortURL]['viewStats']", urlDatabase[shortURL]['viewStats'])
-    res.redirect(redirectURL);
   }
 });
+
 
 //Delete url
 app.delete("/urls/:shortURL", (req, res) => {
