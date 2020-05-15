@@ -55,7 +55,7 @@ app.get('/urls', (req, res) => {
 //Generate a new short url then redirect to its page
 app.post("/urls", (req, res) => {
   let makeString = generateRandomString();
-  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID };
+  urlDatabase[makeString] = { longURL: req.body['longURL'], userID: req.session.userID, viewCount: 0 };
   res.redirect(`/urls/${makeString}`);
 });
 
@@ -102,7 +102,8 @@ app.get('/u/:shortURL', (req, res) => {
   if (shortURL in urlDatabase === false) {
     res.redirect('/404');
   } else {
-    let redirectURL = urlDatabase[req.params.shortURL]['longURL'];
+    let redirectURL = urlDatabase[shortURL]['longURL'];
+    urlDatabase.shortURL.viewCount += 1;
     res.redirect(redirectURL);
   }
 });
