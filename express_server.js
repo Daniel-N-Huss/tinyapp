@@ -103,7 +103,7 @@ app.get('/u/:shortURL', (req, res) => {
     res.redirect('/404');
   } else {
     let redirectURL = urlDatabase[shortURL]['longURL'];
-    urlDatabase.shortURL.viewCount += 1;
+    urlDatabase[shortURL]['viewCount'] += 1;
     res.redirect(redirectURL);
   }
 });
